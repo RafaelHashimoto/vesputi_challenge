@@ -1,0 +1,18 @@
+<% flash.each do |type, message|%>
+  <% class_name = type == 'alert' ? 'is-danger' : 'is-primary' %>
+  <div class="notification <%= class_name %> is-light has-text-centered">
+    <button class="delete"></button>
+    <%= message %>
+  </div>
+<% end %>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  (document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+    $notification = $delete.parentNode;
+
+    $delete.addEventListener('click', () => {
+      $notification.parentNode.removeChild($notification);
+    });
+  });
+});
+</script>

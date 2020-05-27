@@ -1,0 +1,90 @@
+<div id='map' ></div>
+<div class='columns' style='padding-top:10px'>
+  <div class='column is-half is-offset-one-quarter'>
+    <div class="field is-grouped">
+      <div class="control">
+        <%= number_field_tag :longitude, nil, class:'input is-normal', placeholder: 'Longitude'%>
+      </div>
+      <div class="control">
+        <%= number_field_tag :latitude, nil, class:'input is-normal', placeholder: 'Latitude'%>
+      </div>
+      <div class="control">
+        <%= submit_tag 'Search Nearest Stops', class:'button is-primary', id:'submit'%>
+      </div>
+    </div>
+  </div>
+  <div class='column is-one-fifth '>
+    <%= link_to 'Add Stops', new_stop_path, class:'button is-info is-pulled-right'%>
+  </div>
+</div>
+<script>
+
+  mapboxgl.accessToken = 'pk.eyJ1IjoiaGFzaGltb3RvcmFmYSIsImEiOiJja2FraHY0NngwaDNqMnJsYjNrcHpldHI4In0.EOxJeIb82fmH7gMf3BWSPQ';
+
+  var markers = [];
+  var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v9'
+  });
+
+  document.getElementById('submit').addEventListener('click', getClosestStops);
+
+  function flyToCoordinate(lon, lat){
+    map.flyTo({
+      center: [
+        parseFloat(lon),
+        parseFloat(lat),
+      ],
+      zoom: 15,
+      essential: true
+    });
+  }
+
+  function showStops(stops) {
+    markers.forEach((marker) => marker.remove());
+    markers = [];
+
+    flyToCoordinate(
+      (stops[0].attributes.stop_lon + stops[stops.length-1].attributes.stop_lon)/2,
+      (stops[0].attributes.stop_lat + stops[stops.length-1].attributes.stop_lat)/2,
+    );
+
+    stops.forEach( function(stop) {
+      // create a HTML element for each feature
+      var el = document.createElement('div');
+      el.className = 'marker';
+
+      // make a marker for each feature and add to the map
+      marker = new mapboxgl.Marker(el)
+        .setLngLat([stop.attributes.stop_lon, stop.attributes.stop_lat])
+        .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+          .setHTML(
+            "<h2 style='padding-top:10px;'><b>STOP</b></h2>" +
+            "<h4 style='padding-top:5px;'><b>" + stop.attributes.stop_name + '</b></h4>' +
+            "<p style='padding-top:10px;'><b>lat:</b> " + stop.attributes.stop_lat + '</p>' +
+            '<p> <b>lon:</b> ' + stop.attributes.stop_lon + '</p>'
+          )
+        ).addTo(map);
+      markers.push(marker)
+    })
+
+  }
+
+  function getClosestStops() {
+    var longitude = document.getElementById('longitude').value;
+    var latitude = document.getElementById('latitude').value;
+    if (latitude != '' && longitude != '') {
+
+      var xhttp = new XMLHttpRequest();
+
+      xhttp.onreadystatechange = function() {
+        if (xhttp.readyState === 4 && xhttp.response != '') {
+          showStops(JSON.parse(xhttp.response).data);
+        }
+      }
+
+      xhttp.open('GET', '/api/v1/stops/nearest.json?longitude=' + longitude + '&latitude=' + latitude, true);
+      xhttp.send();
+    }
+  }
+</script>

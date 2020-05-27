@@ -1,0 +1,35 @@
+<div class='centralized-div'>
+  <%= render 'layouts/notifications' %>
+  <%= form_tag stops_path, method: :post, multipart: true do %>
+    <div class='field'>
+      <div class='file file is-centered is-boxed has-name is-large' id='file_uploader'>
+        <label class='file-label'>
+          <%= file_field_tag :file, accept: 'text/plain', class:'file-input'%>
+          <span class='file-cta'>
+            <span class='file-icon'>
+              <i class='fas fa-upload'></i>
+            </span>
+            <span class='file-label'>
+              Choose a file…
+            </span>
+          </span>
+          <span class='file-name has-text-centered'>
+            No file uploaded
+          </span>
+        </label>
+      </div>
+    </div>
+    <%= submit_tag 'Upload File', class:'button is-success', style:'width: 100%;'%>
+  <% end %>
+  <%= link_to 'Search Closest Stops', root_path, class:'button is-info is-outlined'%>
+</div>
+
+<script>
+  const fileInput = document.querySelector('#file_uploader input[type=file]');
+  fileInput.onchange = () => {
+    if (fileInput.files.length > 0) {
+      const fileName = document.querySelector('#file_uploader .file-name');
+      fileName.textContent = fileInput.files[0].name;
+    }
+  }
+</script>

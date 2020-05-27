@@ -1,0 +1,2 @@
+﻿stop_id,stop_name,stop_lat,stop_lon,location_type,parent_statio
+"8220DB000010","Parnell Square West, stop 10","","","",""
